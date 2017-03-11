@@ -66,6 +66,7 @@
 /* global QrCode */
 /* global $JssorSlider$ */
 
+const URL = '/'
 export default {
   name: 'hello',
   data () {
@@ -108,7 +109,7 @@ export default {
       console.log('upload')
       let form = new FormData()
       form.append('file', this.image_src)
-      fetch('https://pictest-nns.c9users.io/upload', {
+      fetch(URL + 'upload', {
         method: 'POST',
         body: form
       })
@@ -154,7 +155,7 @@ export default {
       }
     },
     get_image () {
-      fetch('https://pictest-nns.c9users.io/imagelist')
+      fetch(URL + 'imagelist')
       .then((response) => {
         response.json().then((data) => {
           this.image_list = data
@@ -166,7 +167,7 @@ export default {
       })
     },
     imageURL (name) {
-      return 'https://pictest-nns.c9users.io/uploads/' + name
+      return URL + 'static/uploads/' + name
     }
   }
 }

@@ -16,7 +16,12 @@
     "vue": "^2.2.2",
     "vue-material": "^0.7.1",
     "vue-router": "^2.2.0",
-    "whatwg-fetch": "^2.0.3"
+    "whatwg-fetch": "^2.0.3",
+    "body-parser": "^1.17.1",
+    "express": "~3.2.4",
+    "express-fileupload": "^0.1.1",
+    "qrcode-reader": "^0.2.2"
+
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",
