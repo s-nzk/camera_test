@@ -7,29 +7,34 @@
       <h2 class="md-title" style="flex: 1">ブラウザカメラアプリ</h2>
     </md-toolbar>
     <md-list>
-      <div class="has-ripple" v-on:click="click_photo_panel">
         <md-list-item style="width:100%">
-          <md-ink-ripple />
-          <md-icon class="md-size-4x md-primary">photo_camera</md-icon>
-          <span>荷姿を撮影する</span>
-          <input id="photo" type="file" v-on:change="take_photo" style="display:none">
+          <div v-on:click="click_photo_panel" style="width:100%">
+            <md-ink-ripple />
+            <md-icon class="md-size-4x md-primary">photo_camera</md-icon>
+            <span>荷姿を撮影する</span>
+            <input id="photo" type="file" v-on:change="take_photo" style="display:none">
+          </div>
         </md-list-item>
-      </div>
-      <div class="has-ripple" v-on:click="click_qr_panel">
+      
+      
         <md-list-item style="width:100%">
-          <md-ink-ripple />
-          <md-icon class="md-size-4x md-primary">add_a_photo</md-icon>
-          <span>QRコードを読み取る</span>
-          <input id="qr" type="file" v-on:change="take_qr" style="display:none">
+          <div v-on:click="click_qr_panel" style="width:100%">
+            <md-ink-ripple />
+            <md-icon class="md-size-4x md-primary">add_a_photo</md-icon>
+            <span>QRコードを読み取る</span>
+            <input id="qr" type="file" v-on:change="take_qr" style="display:none">
+          </div>
         </md-list-item>
-      </div>
-      <div class="has-ripple" v-on:click="get_image">
+      
+      
         <md-list-item style="width:100%">
-          <md-ink-ripple />
-          <md-icon class="md-size-4x md-primary">view_list</md-icon>
-          <span>撮影した写真を確認する</span>
+          <div v-on:click="get_image" style="width:100%">
+            <md-ink-ripple />
+            <md-icon class="md-size-4x md-primary">view_list</md-icon>
+            <span>撮影した写真を確認する</span>
+          </div>
         </md-list-item>
-      </div>
+      
       
     </md-list>
 
@@ -54,7 +59,7 @@
     </md-dialog>
 
 
-    <md-snackbar :md-position="'top'+' '+'center'" ref="snackbar" :md-duration="duration">
+    <md-snackbar :md-position="'top'+' '+'center'" ref="snackbar" :md-duration="6000">
       <span>{{ message }}</span>
     </md-snackbar>
 
@@ -74,7 +79,7 @@ export default {
       image_src: '',
       message: '',
       image_list: [],
-      duration: 4000
+      duration: 6000
     }
   },
   methods: {
@@ -121,6 +126,7 @@ export default {
           this.message = 'アップロード失敗'
         }
         this.$refs.preview.close()
+        this.duration = 6000
         this.$refs.snackbar.open()
       })
     },
@@ -145,7 +151,6 @@ export default {
               } else {
                 this.message = result
               }
-              this.duration = 6000
               this.$refs.snackbar.open()
             }
             qr.decode(small)
