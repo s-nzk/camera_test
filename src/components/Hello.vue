@@ -1,12 +1,12 @@
 
 
 <template>
-  <div class="phone-viewport">
+  <div id="view" class="phone-viewport">
     
-    <md-toolbar>
+    <md-toolbar id="toolbar">
       <h2 class="md-title" style="flex: 1">ブラウザカメラアプリ</h2>
     </md-toolbar>
-    <md-list>
+    <md-list id="list">
         <md-list-item style="width:100%">
           <div v-on:click="click_photo_panel" style="width:100%">
             <md-ink-ripple />
@@ -37,9 +37,9 @@
       
       
     </md-list>
-
-    <div id="jssor_1" style="margin:0 auto; position:relative;width:800px;height:800px;overflow:hidden;">
-      <div data-u="slides" style="position:relative;cursor:default;width:800px;height:800px;overflow:hidden;">
+    
+    <div id="jssor_1" style="margin:0 auto; position:relative;width:250px;height:250px;overflow:hidden;">
+      <div id="jssor_1_slides" data-u="slides" style="position:relative;cursor:default;width:250px;height:250px;overflow:hidden">
         <div v-for="image in image_list">
           <img :src="imageURL(image)"/>
         </div>
@@ -53,8 +53,12 @@
       </md-dialog-content>
 
       <md-dialog-actions>
-        <md-button class="md-primary" v-on:click.native="close_preview()">cancel</md-button>
-        <md-button class="md-primary" v-on:click.native="upload()">upload</md-button>
+        <md-button class="md-primary" v-on:click.native="close_preview()">キャンセル
+          <md-ink-ripple />
+        </md-button>
+        <md-button class="md-primary" v-on:click.native="upload()">アップロード
+          <md-ink-ripple />
+        </md-button>
       </md-dialog-actions>
     </md-dialog>
 
@@ -165,7 +169,22 @@ export default {
         response.json().then((data) => {
           this.image_list = data
           setTimeout(() => {
-            let x = new $JssorSlider$('jssor_1')
+            let viewHeight = document.getElementById('view').offsetHeight
+            let viewWidth = document.getElementById('view').offsetWidth
+            let toolbarHeight = document.getElementById('toolbar').offsetHeight
+            let listHeight = document.getElementById('list').offsetHeight
+            let height = viewHeight - toolbarHeight - listHeight
+            let w
+            if (height > viewWidth) {
+              w = viewWidth
+            } else {
+              w = height
+            }
+            document.getElementById('jssor_1').style.height = `${w}px`
+            document.getElementById('jssor_1_slides').style.height = `${w}px`
+            document.getElementById('jssor_1').style.width = `${w}px`
+            document.getElementById('jssor_1_slides').style.width = `${w}px`
+            let x = new $JssorSlider$('jssor_1', {$FillMode: 1})
             console.log(x)
           })
         })
