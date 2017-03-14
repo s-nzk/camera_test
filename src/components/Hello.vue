@@ -25,6 +25,15 @@
             <input id="qr" type="file" v-on:change="take_qr" style="display:none">
           </div>
         </md-list-item>
+        
+                <md-list-item style="width:100%">
+          <div v-on:click="click_nw7_panel" style="width:100%">
+            <md-ink-ripple />
+            <md-icon class="md-size-4x md-primary">add_a_photo</md-icon>
+            <span>NW7コードを読み取る</span>
+            <input id="nw7" type="file" v-on:change="take_nw7" style="display:none">
+          </div>
+        </md-list-item>
       
       
         <md-list-item style="width:100%">
@@ -47,8 +56,7 @@
     </div>
 
     <md-dialog md-open-from="#custom" md-close-to="#custom" ref="preview">
-      <md-dialog-title>プレビュー</md-dialog-title>
-      <md-dialog-content>
+      <md-dialog-content style="margin:auto;">
         <img :src="image_src"></img>
       </md-dialog-content>
 
@@ -74,6 +82,9 @@
 <script>
 /* global QrCode */
 /* global $JssorSlider$ */
+
+import EXIF from 'exif-js'
+import Quagga from 'quagga'
 
 const URL = '/'
 export default {
@@ -163,6 +174,39 @@ export default {
         reader.readAsDataURL(file)
       }
     },
+    // NW7を撮影するパネル押下
+    click_nw7_panel () {
+      console.log(this)
+      let nw7 = document.getElementById('nw7')
+      nw7.click()
+    },
+    // NW7を撮影した後の処理
+    take_nw7 (e) {
+      let file = e.target.files && e.target.files[0]
+      if (file != null) {
+        let reader = new FileReader()
+        reader.onload = () => {
+          // ここはリサイズ不要(中でやってくれている)
+          Quagga.decodeSingle({
+            src: reader.result,
+            decoder: {
+              readers: ['codabar_reader']
+            }
+          },
+          (result) => {
+            if (result.codeResult) {
+              this.message = result.codeResult.code
+              console.log('result', result.codeResult.code)
+            } else {
+              this.message = 'not detected'
+              console.log('not detected')
+            }
+            this.$refs.snackbar.open()
+          })
+        }
+        reader.readAsDataURL(file)
+      }
+    },
     get_image () {
       fetch(URL + 'imagelist')
       .then((response) => {
@@ -196,22 +240,49 @@ export default {
   }
 }
 
-// 写真リサイズ処理
+// 写真リサイズと回転処理
 let makeSmall = (large, callback) => {
   let scale = 0.1 // 10%へリサイズ
   let canvas = document.createElement('canvas')
   let ctx = canvas.getContext('2d')
   let image = new Image()
   image.src = large
-
-  image.onload = (event) => {
-    let dstWidth = image.width * scale
-    let dstHeight = image.height * scale
-    canvas.width = dstWidth
-    canvas.height = dstHeight
-    ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight)
-    callback(canvas.toDataURL())
-  }
+  EXIF.getData(image, () => {
+    let orientation = EXIF.getTag(image, 'Orientation')
+    console.log('orientation', orientation)
+    image.onload = (event) => {
+      let dstWidth = image.width * scale
+      let dstHeight = image.height * scale
+      switch (orientation) {
+        case 3: // 画像が１８０度回転している時
+          canvas.width = dstWidth
+          canvas.height = dstHeight
+          ctx.rotate(Math.PI)
+          ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, -dstWidth, -dstHeight)
+          ctx.rotate(-Math.PI)
+          break
+        case 6: // 画像が時計回りに９０度回っている時
+          canvas.width = dstHeight
+          canvas.height = dstWidth
+          ctx.rotate(Math.PI * 0.5)
+          ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, -dstHeight)
+          ctx.rotate(-Math.PI * 0.5)
+          break
+        case 8: // 画像が反時計回りに９０度回っている時
+          canvas.width = dstHeight
+          canvas.height = dstWidth
+          ctx.rotate(-Math.PI * 0.5)
+          ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, -dstWidth, dstHeight)
+          ctx.rotate(Math.PI * 0.5)
+          break
+        default:
+          canvas.width = dstWidth
+          canvas.height = dstHeight
+          ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, dstWidth, dstHeight)
+      }
+      callback(canvas.toDataURL())
+    }
+  })
 }
 </script>
 
